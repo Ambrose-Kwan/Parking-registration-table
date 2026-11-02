@@ -32,6 +32,8 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+Supply your own Excel data file when you import or convert. This repository does not include one.
+
 ### Interactive menu
 
 ```bash
