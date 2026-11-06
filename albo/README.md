@@ -10,6 +10,7 @@ HCI prototype for the Albo **Smart Community Feed** (F4-1), driven by a single m
 - Category chips aligned to `recipes | workouts | places` (no Fitness/Explore tag clash)
 - F4-2 Quick Save drawer: `selectedPost` preview binding, collections + create, confirm → green `Saved ✓` + toast
 - F4-3 Local Events: `eventsData`, city/date/nearby filters, bookmark with `stopPropagation`, slide-in F4-4 detail (no debug toast)
+- F4-4 Event Details: share/route toasts, invite drawer, calendar sync + Undo, about + transit from `selectedEvent`
 
 ## Run
 
