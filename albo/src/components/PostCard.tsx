@@ -8,7 +8,7 @@ import usersIcon from '../assets/icons/users.svg'
 interface PostCardProps {
   post: PostItem
   onToggleLike: (id: string) => void
-  onToggleSave: (id: string) => void
+  onRequestSave: (post: PostItem) => void
 }
 
 function starLine(rating: number): string {
@@ -16,7 +16,7 @@ function starLine(rating: number): string {
   return '★'.repeat(full) + '☆'.repeat(5 - full)
 }
 
-export function PostCard({ post, onToggleLike, onToggleSave }: PostCardProps) {
+export function PostCard({ post, onToggleLike, onRequestSave }: PostCardProps) {
   const [likePulse, setLikePulse] = useState(false)
   const [savePulse, setSavePulse] = useState(false)
 
@@ -53,7 +53,7 @@ export function PostCard({ post, onToggleLike, onToggleSave }: PostCardProps) {
           aria-pressed={post.isSaved}
           onClick={() => {
             setSavePulse(true)
-            onToggleSave(post.id)
+            onRequestSave(post)
             window.setTimeout(() => setSavePulse(false), 280)
           }}
         >

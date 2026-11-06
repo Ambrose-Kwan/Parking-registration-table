@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   categoryFilters,
   feedSegments,
@@ -8,7 +8,12 @@ import {
   type PostCategory,
   type PostItem,
 } from '../data/posts'
+import {
+  collectionLabel,
+  type CollectionItem,
+} from '../data/collections'
 import { PostCard } from '../components/PostCard'
+import { QuickSaveDrawer } from '../components/QuickSaveDrawer'
 import { TabBar } from '../components/TabBar'
 import signalIcon from '../assets/icons/ios-signal.svg'
 import wifiIcon from '../assets/icons/ios-wifi.svg'
@@ -24,11 +29,26 @@ export function SmartFeed() {
   )
   const [segment, setSegment] = useState<FeedSegment>('friends')
   const [category, setCategory] = useState<CategoryKey>('recipes')
+  const [selectedPost, setSelectedPost] = useState<PostItem | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const [toastVisible, setToastVisible] = useState(false)
 
   const visiblePosts = useMemo(
     () => filterPosts(posts, segment, category),
     [posts, segment, category],
   )
+
+  useEffect(() => {
+    if (!toast) return
+    setToastVisible(true)
+    const hide = window.setTimeout(() => setToastVisible(false), 1800)
+    const clear = window.setTimeout(() => setToast(null), 2200)
+    return () => {
+      window.clearTimeout(hide)
+      window.clearTimeout(clear)
+    }
+  }, [toast])
 
   const toggleLike = (id: string) => {
     setPosts((current) =>
@@ -44,12 +64,25 @@ export function SmartFeed() {
     )
   }
 
-  const toggleSave = (id: string) => {
+  const openSaveDrawer = (post: PostItem) => {
+    setSelectedPost(post)
+    setDrawerOpen(true)
+  }
+
+  const closeSaveDrawer = () => {
+    setDrawerOpen(false)
+    setSelectedPost(null)
+  }
+
+  const handleConfirmSave = (postId: string, collection: CollectionItem) => {
     setPosts((current) =>
       current.map((post) =>
-        post.id === id ? { ...post, isSaved: !post.isSaved } : post,
+        post.id === postId ? { ...post, isSaved: true } : post,
       ),
     )
+    setDrawerOpen(false)
+    setSelectedPost(null)
+    setToast(`Saved to ${collectionLabel(collection)}`)
   }
 
   return (
@@ -126,13 +159,32 @@ export function SmartFeed() {
                 key={post.id}
                 post={post}
                 onToggleLike={toggleLike}
-                onToggleSave={toggleSave}
+                onRequestSave={openSaveDrawer}
               />
             ))
           )}
         </main>
 
+        {toast ? (
+          <div
+            className={`save-toast ${toastVisible ? 'is-visible' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            {toast}
+          </div>
+        ) : null}
+
         <TabBar />
+
+        {selectedPost ? (
+          <QuickSaveDrawer
+            selectedPost={selectedPost}
+            open={drawerOpen}
+            onClose={closeSaveDrawer}
+            onConfirmSave={handleConfirmSave}
+          />
+        ) : null}
       </div>
     </div>
   )
