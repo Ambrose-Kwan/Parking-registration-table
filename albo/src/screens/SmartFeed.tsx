@@ -12,8 +12,11 @@ import {
   collectionLabel,
   type CollectionItem,
 } from '../data/collections'
+import { eventsData, type EventItem } from '../data/events'
 import { PostCard } from '../components/PostCard'
 import { QuickSaveDrawer } from '../components/QuickSaveDrawer'
+import { LocalEventsView } from '../components/LocalEventsView'
+import { EventDetail } from '../components/EventDetail'
 import { TabBar } from '../components/TabBar'
 import signalIcon from '../assets/icons/ios-signal.svg'
 import wifiIcon from '../assets/icons/ios-wifi.svg'
@@ -27,10 +30,15 @@ export function SmartFeed() {
   const [posts, setPosts] = useState<PostItem[]>(() =>
     postsData.map((post) => ({ ...post })),
   )
+  const [events, setEvents] = useState<EventItem[]>(() =>
+    eventsData.map((event) => ({ ...event })),
+  )
   const [segment, setSegment] = useState<FeedSegment>('friends')
   const [category, setCategory] = useState<CategoryKey>('recipes')
   const [selectedPost, setSelectedPost] = useState<PostItem | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
 
@@ -38,6 +46,8 @@ export function SmartFeed() {
     () => filterPosts(posts, segment, category),
     [posts, segment, category],
   )
+
+  const showLocalEvents = segment === 'localEvents'
 
   useEffect(() => {
     if (!toast) return
@@ -85,6 +95,37 @@ export function SmartFeed() {
     setToast(`Saved to ${collectionLabel(collection)}`)
   }
 
+  const toggleEventSave = (id: string) => {
+    setEvents((current) =>
+      current.map((event) =>
+        event.id === id ? { ...event, isSaved: !event.isSaved } : event,
+      ),
+    )
+    setSelectedEvent((current) =>
+      current && current.id === id
+        ? { ...current, isSaved: !current.isSaved }
+        : current,
+    )
+  }
+
+  const openEventDetail = (event: EventItem) => {
+    setSelectedEvent(event)
+    setDetailOpen(true)
+  }
+
+  const closeEventDetail = () => {
+    setDetailOpen(false)
+    setSelectedEvent(null)
+  }
+
+  const handleSegmentChange = (next: FeedSegment) => {
+    setSegment(next)
+    if (next !== 'localEvents') {
+      setDetailOpen(false)
+      setSelectedEvent(null)
+    }
+  }
+
   return (
     <div className="phone-shell">
       <div className="smart-feed">
@@ -123,47 +164,53 @@ export function SmartFeed() {
                 role="tab"
                 aria-selected={segment === item.key}
                 className={`segmented__item ${segment === item.key ? 'is-active' : ''}`}
-                onClick={() => setSegment(item.key)}
+                onClick={() => handleSegmentChange(item.key)}
               >
                 {item.label}
               </button>
             ))}
           </div>
 
-          <div className="filter-chips" role="listbox" aria-label="Categories">
-            {categoryFilters.map((chip) => (
-              <button
-                key={chip.key}
-                type="button"
-                role="option"
-                aria-selected={category === chip.key}
-                className={`filter-chip ${category === chip.key ? 'is-active' : ''}`}
-                onClick={() => setCategory(chip.key)}
-              >
-                <span aria-hidden>{chip.emoji}</span> {chip.label}
-              </button>
-            ))}
-          </div>
+          {!showLocalEvents ? (
+            <div className="filter-chips" role="listbox" aria-label="Categories">
+              {categoryFilters.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  role="option"
+                  aria-selected={category === chip.key}
+                  className={`filter-chip ${category === chip.key ? 'is-active' : ''}`}
+                  onClick={() => setCategory(chip.key)}
+                >
+                  <span aria-hidden>{chip.emoji}</span> {chip.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
-        <main className="feed-list">
-          {visiblePosts.length === 0 ? (
-            <p className="feed-empty">
-              {segment === 'localEvents'
-                ? 'Local Events live on F4-3 — switch to Explore or Friends.'
-                : 'No posts match this filter.'}
-            </p>
-          ) : (
-            visiblePosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onToggleLike={toggleLike}
-                onRequestSave={openSaveDrawer}
-              />
-            ))
-          )}
-        </main>
+        {showLocalEvents ? (
+          <LocalEventsView
+            events={events}
+            onOpenEvent={openEventDetail}
+            onToggleSave={toggleEventSave}
+          />
+        ) : (
+          <main className="feed-list">
+            {visiblePosts.length === 0 ? (
+              <p className="feed-empty">No posts match this filter.</p>
+            ) : (
+              visiblePosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onToggleLike={toggleLike}
+                  onRequestSave={openSaveDrawer}
+                />
+              ))
+            )}
+          </main>
+        )}
 
         {toast ? (
           <div
@@ -183,6 +230,15 @@ export function SmartFeed() {
             open={drawerOpen}
             onClose={closeSaveDrawer}
             onConfirmSave={handleConfirmSave}
+          />
+        ) : null}
+
+        {selectedEvent ? (
+          <EventDetail
+            event={selectedEvent}
+            open={detailOpen}
+            onClose={closeEventDetail}
+            onToggleSave={toggleEventSave}
           />
         ) : null}
       </div>
