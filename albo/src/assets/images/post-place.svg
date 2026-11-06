@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6aa8d8"/>
+      <stop offset="100%" stop-color="#c9e2f5"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d7ea6"/>
+      <stop offset="100%" stop-color="#1f4d6a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1376" height="768" fill="url(#sky)"/>
+  <ellipse cx="980" cy="220" rx="120" ry="48" fill="#fff" opacity="0.85"/>
+  <ellipse cx="1040" cy="220" rx="80" ry="36" fill="#fff" opacity="0.7"/>
+  <path d="M0 420 C220 360 420 480 680 430 C940 380 1120 470 1376 420 L1376 768 L0 768 Z" fill="#4a6b3f"/>
+  <path d="M0 520 C260 500 480 560 760 530 C1040 500 1220 560 1376 540 L1376 768 L0 768 Z" fill="url(#sea)"/>
+  <rect x="180" y="360" width="28" height="120" fill="#5c4030"/>
+  <circle cx="194" cy="330" r="56" fill="#2f6b3a"/>
+  <circle cx="160" cy="350" r="40" fill="#3a8248"/>
+  <text x="80" y="700" font-family="Inter, Arial, sans-serif" font-size="48" font-weight="700" fill="#f5f7fa">Kamakura Coast Trail</text>
+</svg>
